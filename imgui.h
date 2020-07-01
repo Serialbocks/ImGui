@@ -1,4 +1,4 @@
-// dear imgui, v1.75
+// dear imgui, v1.75 WIP
 // (headers)
 
 // Help:
@@ -1070,6 +1070,7 @@ enum ImGuiCol_
     ImGuiCol_ScrollbarGrabHovered,
     ImGuiCol_ScrollbarGrabActive,
     ImGuiCol_CheckMark,
+        ImGuiCol_RangeSliderBar,
     ImGuiCol_SliderGrab,
     ImGuiCol_SliderGrabActive,
     ImGuiCol_Button,

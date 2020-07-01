@@ -5848,10 +5848,9 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         window->DC.ItemWidthStack.resize(0);
         window->DC.TextWrapPosStack.resize(0);
         window->DC.GroupStack.resize(0);
-
-        if ((flags & ImGuiWindowFlags_ChildWindow) && (window->DC.ItemFlags != parent_window->DC.ItemFlags))
+        window->DC.ItemFlags = parent_window ? parent_window->DC.ItemFlags : ImGuiItemFlags_Default_;
+        if (parent_window)
         {
-            window->DC.ItemFlags = parent_window->DC.ItemFlags;
             window->DC.ItemFlagsStack.push_back(window->DC.ItemFlags);
         }
 
