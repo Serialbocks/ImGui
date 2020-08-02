@@ -486,12 +486,12 @@ void ImGui::FramedText(const char* label, ImVec2 size_arg)
 /// <summary>Wraps colored text.</summary>
 /// <remarks>Combination of <see cref="ImGui::TextColored"/> and <see cref="ImGui::TextWrapped"/>.</remarks>
 /// <param name="col">Color of the text</param>
-/// <param name="fmt">String to be formatted</param>
-void ImGui::TextColoredWrapped(const ImVec4& col, const char* fmt, ...)
+/// <param name="text">String to be displayed</param>
+void ImGui::TextColoredWrapped(const ImVec4& col, const char* text)
 {
     bool need_wrap = (GImGui->CurrentWindow->DC.TextWrapPos < 0.0f);    // Keep existing wrap position is one ia already set
     if (need_wrap) PushTextWrapPos(0.0f);
-    TextColored(col, fmt);
+    TextColored(col, "%s", text);
     if (need_wrap) PopTextWrapPos();
 }
 

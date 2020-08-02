@@ -1,5 +1,6 @@
 #pragma once
 #include "imgui.h"
+
 namespace ImGui
 {
     IMGUI_API bool RangeSliderScalar(const char* label, ImGuiDataType data_type, void* p_data1, void* p_data2, const void* p_min, const void* p_max, const char* format = NULL, float power = 1.0f);

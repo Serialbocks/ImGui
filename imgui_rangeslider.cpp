@@ -462,7 +462,7 @@ namespace ImGui
     // ~95% common code with ImGui::SliderScalar
     // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a slider, they are all required.
     // Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
-    bool ImGui::RangeSliderScalar(const char* label, ImGuiDataType data_type, void* p_data1, void* p_data2, const void* p_min, const void* p_max, const char* format, float power)
+    bool RangeSliderScalar(const char* label, ImGuiDataType data_type, void* p_data1, void* p_data2, const void* p_min, const void* p_max, const char* format, float power)
     {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems)
@@ -551,7 +551,7 @@ namespace ImGui
 
     // ~95% common code with ImGui::SliderScalarN
     // Add multiple sliders on 1 line for compact edition of multiple components
-    bool ImGui::RangeSliderScalarN(const char* label, ImGuiDataType data_type, void* v1, void* v2, int components, const void* v_min, const void* v_max, const char* format, float power)
+    bool RangeSliderScalarN(const char* label, ImGuiDataType data_type, void* v1, void* v2, int components, const void* v_min, const void* v_max, const char* format, float power)
     {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems)
@@ -588,31 +588,31 @@ namespace ImGui
     }
 
     // ~95% common code with ImGui::SliderFloat
-    bool ImGui::RangeSliderFloat(const char* label, float* v1, float* v2, float v_min, float v_max, const char* format, float power)
+    bool RangeSliderFloat(const char* label, float* v1, float* v2, float v_min, float v_max, const char* format, float power)
     {
         return RangeSliderScalar(label, ImGuiDataType_Float, v1, v2, &v_min, &v_max, format, power);
     }
 
     // ~95% common code with ImGui::SliderFloat2
-    bool ImGui::RangeSliderFloat2(const char* label, float v1[2], float v2[2], float v_min, float v_max, const char* format, float power)
+    bool RangeSliderFloat2(const char* label, float v1[2], float v2[2], float v_min, float v_max, const char* format, float power)
     {
         return RangeSliderScalarN(label, ImGuiDataType_Float, v1, v2, 2, &v_min, &v_max, format, power);
     }
 
     // ~95% common code with ImGui::SliderFloat3
-    bool ImGui::RangeSliderFloat3(const char* label, float v1[3], float v2[3], float v_min, float v_max, const char* format, float power)
+    bool RangeSliderFloat3(const char* label, float v1[3], float v2[3], float v_min, float v_max, const char* format, float power)
     {
         return RangeSliderScalarN(label, ImGuiDataType_Float, v1, v2, 3, &v_min, &v_max, format, power);
     }
 
     // ~95% common code with ImGui::SliderFloat4
-    bool ImGui::RangeSliderFloat4(const char* label, float v1[4], float v2[4], float v_min, float v_max, const char* format, float power)
+    bool RangeSliderFloat4(const char* label, float v1[4], float v2[4], float v_min, float v_max, const char* format, float power)
     {
         return RangeSliderScalarN(label, ImGuiDataType_Float, v1, v2, 4, &v_min, &v_max, format, power);
     }
 
     // ~95% common code with ImGui::SliderAngle
-    bool ImGui::RangeSliderAngle(const char* label, float* v_rad1, float* v_rad2, float v_degrees_min, float v_degrees_max, const char* format)
+    bool RangeSliderAngle(const char* label, float* v_rad1, float* v_rad2, float v_degrees_min, float v_degrees_max, const char* format)
     {
         if (format == NULL)
             format = "%d deg";
@@ -625,30 +625,30 @@ namespace ImGui
     }
 
     // ~95% common code with ImGui::SliderInt
-    bool ImGui::RangeSliderInt(const char* label, int* v1, int* v2, int v_min, int v_max, const char* format)
+    bool RangeSliderInt(const char* label, int* v1, int* v2, int v_min, int v_max, const char* format)
     {
         return RangeSliderScalar(label, ImGuiDataType_S32, v1, v2, &v_min, &v_max, format);
     }
 
     // ~95% common code with ImGui::SliderInt2
-    bool ImGui::RangeSliderInt2(const char* label, int v1[2], int v2[2], int v_min, int v_max, const char* format)
+    bool RangeSliderInt2(const char* label, int v1[2], int v2[2], int v_min, int v_max, const char* format)
     {
         return RangeSliderScalarN(label, ImGuiDataType_S32, v1, v2, 2, &v_min, &v_max, format);
     }
 
     // ~95% common code with ImGui::SliderInt3
-    bool ImGui::RangeSliderInt3(const char* label, int v1[3], int v2[3], int v_min, int v_max, const char* format)
+    bool RangeSliderInt3(const char* label, int v1[3], int v2[3], int v_min, int v_max, const char* format)
     {
         return RangeSliderScalarN(label, ImGuiDataType_S32, v1, v2, 3, &v_min, &v_max, format);
     }
 
     // ~95% common code with ImGui::SliderInt4
-    bool ImGui::RangeSliderInt4(const char* label, int v1[4], int v2[4], int v_min, int v_max, const char* format)
+    bool RangeSliderInt4(const char* label, int v1[4], int v2[4], int v_min, int v_max, const char* format)
     {
         return RangeSliderScalarN(label, ImGuiDataType_S32, v1, v2, 4, &v_min, &v_max, format);
     }
 
-    bool ImGui::RangeVSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* p_data1, void* p_data2, const void* p_min, const void* p_max, const char* format, float power)
+    bool RangeVSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* p_data1, void* p_data2, const void* p_min, const void* p_max, const char* format, float power)
     {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems)
@@ -717,12 +717,12 @@ namespace ImGui
         return value_changed;
     }
 
-    bool ImGui::RangeVSliderFloat(const char* label, const ImVec2& size, float* v1, float* v2, float v_min, float v_max, const char* format, float power)
+    bool RangeVSliderFloat(const char* label, const ImVec2& size, float* v1, float* v2, float v_min, float v_max, const char* format, float power)
     {
         return RangeVSliderScalar(label, size, ImGuiDataType_Float, v1, v2, &v_min, &v_max, format, power);
     }
 
-    bool ImGui::RangeVSliderInt(const char* label, const ImVec2& size, int* v1, int* v2, int v_min, int v_max, const char* format)
+    bool RangeVSliderInt(const char* label, const ImVec2& size, int* v1, int* v2, int v_min, int v_max, const char* format)
     {
         return RangeVSliderScalar(label, size, ImGuiDataType_S32, v1, v2, &v_min, &v_max, format);
     }

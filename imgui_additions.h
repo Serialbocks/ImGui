@@ -4,7 +4,7 @@
 #include "imgui.h"
 
 #pragma warning(push, 0)
-#include "bakkesmod/wrappers/wrapperstructs.h"
+#include "bakkesmod/wrappers/WrapperStructs.h"
 #pragma warning(pop)
 
 
@@ -27,6 +27,6 @@ namespace ImGui
     bool SwitchCheckbox(const char* label, bool v);
     bool DragVector(const char* label, Vector* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
     void FramedText(const char* label, ImVec2 size_arg = ImVec2(0, 0));
-    void TextColoredWrapped(const ImVec4& col, const char* fmt, ...);
+    void TextColoredWrapped(const ImVec4& col, const char* text);
     void RLColorPicker(const char* label, char* current_item, std::vector<ImVec4> customColors, unsigned char num_colums, ImVec4 defaultColor = ImVec4(), ImVec2 size = ImVec2());
 }
