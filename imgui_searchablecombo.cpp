@@ -14,7 +14,6 @@ static float CalcMaxPopupHeightFromItemCount(int items_count)
     return (g.FontSize + g.Style.ItemSpacing.y) * items_count - g.Style.ItemSpacing.y + (g.Style.WindowPadding.y * 2);
 }
 
-
 /* Modified version of BeginCombo from imgui.cpp at line 9172,
  * to include a input field to be able to filter the combo values. */
 bool ImGui::BeginSearchableCombo(const char* label, const char* preview_value, char* input, int input_size, const char* input_preview_value, bool* buffer_changed, ImGuiComboFlags flags)
@@ -164,14 +163,14 @@ void ImGui::EndSearchableCombo()
 
 /* Modified version of Combo from imgui.cpp at line 9343,
  * to include a input field to be able to filter the combo values. */
-bool ImGui::SearchableCombo(const char* label, int* current_item, std::vector<std::string> items, const char* default_preview_text, const char* input_preview_value, int popup_max_height_in_items)
+bool ImGui::SearchableCombo(const char* label, size_t* current_item, std::vector<std::string> items, const char* default_preview_text, const char* input_preview_value, int popup_max_height_in_items)
 {
     ImGuiContext& g = *GImGui;
 
     const char* preview_text = NULL;
-    if (*current_item >= (int)items.size())
+    if (*current_item >= items.size())
         *current_item = 0;
-    if (*current_item >= 0 && *current_item < (int)items.size())
+    if (*current_item < items.size())
         preview_text = items[*current_item].c_str();
     else
         preview_text = default_preview_text;
@@ -187,9 +186,9 @@ bool ImGui::SearchableCombo(const char* label, int* current_item, std::vector<st
 
     // Display items
     // FIXME-OPT: Use clipper (but we need to disable it on the appearing frame to make sure our call to SetItemDefaultFocus() is processed)
-    int matched_items = 0;
+    size_t matched_items = 0;
     bool value_changed = false;
-    for (int i = 0; i < (int)items.size(); i++)
+    for (size_t i = 0; i < items.size(); i++)
     {
         char buffer[input_size] = "";
         ImStrncpy(buffer, input_buffer, input_size);
@@ -197,9 +196,9 @@ bool ImGui::SearchableCombo(const char* label, int* current_item, std::vector<st
         std::string item = items[i];
 
         std::transform(item.begin(), item.end(), item.begin(),
-            [](unsigned char c) { return (unsigned char)std::tolower(c); });
+            [](const char c) { return (const char)std::tolower(c); });
         std::transform(input.begin(), input.end(), input.begin(),
-            [](unsigned char c) { return (unsigned char)std::tolower(c); });
+            [](const char c) { return (const char)std::tolower(c); });
 
         if (item.find(input, 0) == std::string::npos)
             continue;
@@ -207,14 +206,102 @@ bool ImGui::SearchableCombo(const char* label, int* current_item, std::vector<st
         matched_items++;
         PushID((void*)(intptr_t)i);
         const bool item_selected = (i == *current_item);
-        const char* item_text = items[i].c_str();
-        if (Selectable(item_text, item_selected))
+        std::string item_text = items[i];
+        if (!item_text.empty())
         {
-            value_changed = true;
-            *current_item = i;
+            if (Selectable(item_text.c_str(), item_selected))
+            {
+                value_changed = true;
+                *current_item = i;
+            }
+            if (item_selected)
+                SetItemDefaultFocus();
         }
-        if (item_selected)
-            SetItemDefaultFocus();
+        PopID();
+    }
+    if (matched_items == 0)
+        ImGui::Selectable("No maps found", false, ImGuiSelectableFlags_Disabled);
+
+    EndSearchableCombo();
+
+    return value_changed;
+}
+
+
+/* Special string conversion for strings. */
+std::string to_string(const std::string& str)
+{
+    return str;
+}
+
+
+/* Special string conversion for paths. */
+std::string to_string(const std::filesystem::path& path)
+{
+    return path.u8string();
+}
+
+
+/* Modified version of Combo from imgui.cpp at line 9343,
+ * to include a input field to be able to filter the combo values. */
+template<typename _Key, typename _Value>
+bool ImGui::SearchableCombo(const char* label, _Key& current_item, std::map<_Key, _Value> items, const char* default_preview_text, const char* input_preview_value, int popup_max_height_in_items)
+{
+    ImGuiContext& g = *GImGui;
+
+    std::string preview_text;
+    if (items.empty())
+        preview_text = default_preview_text;
+    else if (items.find(current_item) == items.end())
+    {
+        current_item = items.begin()->first;
+        preview_text = to_string(items[current_item]);
+    }
+    else
+        preview_text = to_string(items[current_item]);
+
+    // The old Combo() API exposed "popup_max_height_in_items". The new more general BeginCombo() API doesn't have/need it, but we emulate it here.
+    if (popup_max_height_in_items != -1 && !(g.NextWindowData.Flags & ImGuiNextWindowDataFlags_HasSizeConstraint))
+        SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(FLT_MAX, CalcMaxPopupHeightFromItemCount(popup_max_height_in_items)));
+
+    const int input_size = 64;
+    char input_buffer[input_size] = "";
+    if (!BeginSearchableCombo(label, preview_text.c_str(), input_buffer, input_size, input_preview_value, NULL, ImGuiComboFlags_None))
+        return false;
+
+    // Display items
+    // FIXME-OPT: Use clipper (but we need to disable it on the appearing frame to make sure our call to SetItemDefaultFocus() is processed)
+    size_t matched_items = 0;
+    bool value_changed = false;
+    for (const auto [key, value] : items)
+    {
+        char buffer[input_size] = "";
+        ImStrncpy(buffer, input_buffer, input_size);
+        std::string input(buffer);
+        std::string item = to_string(value);
+
+        std::transform(item.begin(), item.end(), item.begin(),
+            [](const char c) { return (const char)std::tolower(c); });
+        std::transform(input.begin(), input.end(), input.begin(),
+            [](const char c) { return (const char)std::tolower(c); });
+
+        if (item.find(input) == std::string::npos)
+            continue;
+
+        matched_items++;
+        PushID(to_string(key).data());
+        const bool item_selected = (key == current_item);
+        const std::string item_text = to_string(value);
+        if (!item_text.empty())
+        {
+            if (Selectable(item_text.c_str(), item_selected))
+            {
+                value_changed = true;
+                current_item = key;
+            }
+            if (item_selected)
+                SetItemDefaultFocus();
+        }
         PopID();
     }
     if (matched_items == 0)

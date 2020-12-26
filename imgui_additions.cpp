@@ -66,71 +66,136 @@ bool ImGui::IsItemActiveLastFrame() {
 /// <remarks>Everything between <c>ImGui::BeginDisabled()</c> and <c>ImGui::EndDisabled()</c> will be disabled and greyed out.</remarks>
 void ImGui::BeginDisabled()
 {
-    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+    PushItemFlag(ImGuiItemFlags_Disabled, true);
+    PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 }
 
 
 /// <summary>End the disabled block.</summary>
 void ImGui::EndDisabled()
 {
-    ImGui::PopItemFlag();
-    ImGui::PopStyleVar();
+    PopItemFlag();
+    PopStyleVar();
 }
 
 
-/// <summary>Begins a succes border block.</summary>
-/// <remarks>Everything between <c>ImGui::BeginSuccesBorder()</c> and <c>ImGui::EndSuccesBorder()</c> will get a green border to indicate that there was no error.</remarks>
-void ImGui::BeginSuccesBorder()
+/// <summary>Begins a success border block.</summary>
+/// <remarks>Everything between <c>ImGui::BeginSuccessBorder()</c> and <c>ImGui::EndSuccessBorder()</c> will get a green border to indicate that there was no error.</remarks>
+void ImGui::BeginSuccessBorder()
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
-    ImGui::PushStyleColor(ImGuiCol_Border, (ImVec4)ImColor(56, 142, 60));
-    ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4());
+    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+    PushStyleColor(ImGuiCol_Border, (ImVec4)ImColor(56, 142, 60));
+    PushStyleColor(ImGuiCol_BorderShadow, ImVec4());
 }
 
 
 
-/// <summary>End the succes block.</summary>
-void ImGui::EndSuccesBorder()
+/// <summary>End the success block.</summary>
+void ImGui::EndSuccessBorder()
 {
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar();
+    EndBorder();
 }
 
 
 /// <summary>Begins a warning border block.</summary>
-/// <remarks>Everything between  <c>ImGui::BeginErrorBorder()</c> and <c>ImGui::EndErrorBorder()</c> will get a orange border to indicate that there is an warning there.</remarks>
+/// <remarks>Everything between <c>ImGui::BeginErrorBorder()</c> and <c>ImGui::EndErrorBorder()</c> will get a orange border to indicate that there is an warning there.</remarks>
 void ImGui::BeginWarnBorder()
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
-    ImGui::PushStyleColor(ImGuiCol_Border, (ImVec4)ImColor(245, 124, 0));
-    ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4());
+    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+    PushStyleColor(ImGuiCol_Border, (ImVec4)ImColor(245, 124, 0));
+    PushStyleColor(ImGuiCol_BorderShadow, ImVec4());
 }
 
 
 /// <summary>End the warning border block.</summary>
 void ImGui::EndWarnBorder()
 {
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar();
+    EndBorder();
 }
 
 
-/// <summary>Begins a erorr border block.</summary>
-/// <remarks>Everything between  <c>ImGui::BeginErrorBorder()</c> and <c>ImGui::EndErrorBorder()</c> will get a red border to indicate that there is an error there.</remarks>
+/// <summary>Begins a error border block.</summary>
+/// <remarks>Everything between <c>ImGui::BeginErrorBorder()</c> and <c>ImGui::EndErrorBorder()</c> will get a red border to indicate that there is an error there.</remarks>
 void ImGui::BeginErrorBorder()
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
-    ImGui::PushStyleColor(ImGuiCol_Border, (ImVec4)ImColor(211, 47, 47));
-    ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4());
+    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+    PushStyleColor(ImGuiCol_Border, (ImVec4)ImColor(211, 47, 47));
+    PushStyleColor(ImGuiCol_BorderShadow, ImVec4());
 }
 
 
-/// <summary>End the erorr border block.</summary>
+/// <summary>End the error border block.</summary>
 void ImGui::EndErrorBorder()
 {
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar();
+    EndBorder();
+}
+
+
+/// <summary>End any border block.</summary>
+void ImGui::EndBorder()
+{
+    PopStyleColor(2);
+    PopStyleVar();
+}
+
+
+bool ImGui::Banner(const char* label, const ImVec4 color, const ImVec2& size_arg)
+{
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext& g = *GImGui;
+    const ImGuiStyle& style = g.Style;
+
+    ImGuiID id = window->GetID(label);
+    ImVec2 label_size = CalcTextSize(label, NULL, true);
+    ImVec2 size(size_arg.x != 0.0f ? size_arg.x : label_size.x, size_arg.y != 0.0f ? size_arg.y : label_size.y * 1.5f);
+    ImVec2 pos = window->DC.CursorPos;
+    pos.y += window->DC.CurrLineTextBaseOffset;
+    ImRect bb_inner(pos, pos + size);
+    bb_inner.Min.x += style.ItemSpacing.x;
+    ItemSize(size, 0.0f);
+
+    // Fill horizontal space.
+    ImVec2 window_padding = window->WindowPadding;
+    float max_x = GetWindowContentRegionMax().x;
+    float w_draw = ImMax(label_size.x, window->Pos.x + max_x - window_padding.x - pos.x);
+    ImVec2 size_draw(w_draw, size_arg.y != 0.0f ? size_arg.y : size.y);
+    ImRect bb(pos, pos + size_draw);
+    bb.Max.x += window_padding.x;
+
+    const float spacing_y = style.ItemSpacing.y;
+    const float spacing_U = IM_FLOOR(spacing_y * 0.50f);
+    bb.Min.y -= spacing_U;
+    bb.Max.y += (spacing_y - spacing_U);
+
+    if (!ItemAdd(bb, id))
+        return false;
+    SetItemAllowOverlap();
+
+    // RenderFrame
+    const ImU32 col = ColorConvertFloat4ToU32(color);
+    window->DrawList->AddRectFilled(bb.Min, bb.Max, col, 0.0f);
+    const float border_size = g.Style.ChildBorderSize;
+    if (border_size > 0.0f)
+    {
+        window->DrawList->AddRect(bb.Min + ImVec2(1, 1), bb.Max + ImVec2(1, 1), GetColorU32(ImGuiCol_BorderShadow), 0.0f, ImDrawCornerFlags_All, border_size);
+        window->DrawList->AddRect(bb.Min, bb.Max, GetColorU32(ImGuiCol_Border), 0.0f, ImDrawCornerFlags_All, border_size);
+    }
+    RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_TypeThin | ImGuiNavHighlightFlags_NoRounding);
+
+    RenderTextClipped(bb_inner.Min, bb_inner.Max, label, NULL, &label_size, ImVec2(0, 0.5f), &bb);
+
+    const ImVec2 pad = style.FramePadding;
+    const ImVec2 close_button_size = ImVec2(g.FontSize, g.FontSize) + g.Style.FramePadding * 2.0f;
+    const ImVec2 close_button_pos = ImVec2(bb.Max.x - close_button_size.x, bb.Min.y + (bb.Max.y - bb.Min.y - close_button_size.y) / 2);
+    PushStyleColor(ImGuiCol_ButtonHovered, col & (0x33u << IM_COL32_A_SHIFT));
+    PushStyleColor(ImGuiCol_ButtonActive, col & (0x66u << IM_COL32_A_SHIFT));
+    const bool clicked = CloseButton(window->GetID("#CLOSE"), close_button_pos);
+    PopStyleColor(2);
+
+    return clicked;
 }
 
 
@@ -153,13 +218,11 @@ bool ImGui::Combo(const char* label, size_t* current_item, std::vector<std::stri
 {
     ImGuiContext& g = *GImGui;
 
-    const char* preview_text = NULL;
+    const char* preview_text = default_preview_text;
     if (*current_item >= items.size())
         *current_item = 0;
-    if (*current_item >= 0 && *current_item < items.size())
+    if (*current_item < items.size())
         preview_text = items[*current_item].c_str();
-    else
-        preview_text = default_preview_text;
 
     // The old Combo() API exposed "popup_max_height_in_items". The new more general BeginCombo() API doesn't have/need it, but we emulate it here.
     if (popup_max_height_in_items != -1 && !(g.NextWindowData.Flags & ImGuiNextWindowDataFlags_HasSizeConstraint))
@@ -175,14 +238,72 @@ bool ImGui::Combo(const char* label, size_t* current_item, std::vector<std::stri
     {
         PushID((void*)(intptr_t)i);
         const bool item_selected = (i == *current_item);
-        const char* item_text = items[i].c_str();
-        if (Selectable(item_text, item_selected))
+        std::string item_text = items[i];
+        if (!item_text.empty())
         {
-            value_changed = true;
-            *current_item = i;
+            if (Selectable(item_text.c_str(), item_selected))
+            {
+                value_changed = true;
+                *current_item = i;
+            }
+            if (item_selected)
+                SetItemDefaultFocus();
         }
-        if (item_selected)
-            SetItemDefaultFocus();
+        PopID();
+    }
+
+    EndCombo();
+    return value_changed;
+}
+
+
+/// <summary>Modified instance of <see cref="ImGui::Combo"/> that supports <c>std::map&lt;std::string, std::string&gt;</c> instead of <c>const char*</c> arrays.</summary>
+/// <param name="label">Combo label</param>
+/// <param name="current_item">Key of selected item</param>
+/// <param name="items"><c>std::vector</c> of <c>std::string</c> labels for items</param>
+/// <param name="default_preview_text">Text previewed when label for the selected item can not be displayed</param>
+/// <param name="popup_max_height_in_items">Height of dropdown in items</param>
+/// <returns>Bool with if the value changed</returns>
+bool ImGui::Combo(const char* label, std::string& current_item, std::map<std::string, std::string> items, const char* default_preview_text, int popup_max_height_in_items)
+{
+    ImGuiContext& g = *GImGui;
+
+    const char* preview_text = NULL;
+    if (items.empty())
+        preview_text = default_preview_text;
+    else if (items.find(current_item) == items.end())
+    {
+        current_item = items.begin()->first;
+        preview_text = items[current_item].c_str();
+    }
+    else
+        preview_text = items[current_item].c_str();
+
+    // The old Combo() API exposed "popup_max_height_in_items". The new more general BeginCombo() API doesn't have/need it, but we emulate it here.
+    if (popup_max_height_in_items != -1 && !(g.NextWindowData.Flags & ImGuiNextWindowDataFlags_HasSizeConstraint))
+        SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(FLT_MAX, CalcMaxPopupHeightFromItemCount(popup_max_height_in_items)));
+
+    if (!BeginCombo(label, preview_text, 0))
+        return false;
+
+    // Display items
+    // FIXME-OPT: Use clipper (but we need to disable it on the appearing frame to make sure our call to SetItemDefaultFocus() is processed)
+    bool value_changed = false;
+    for (const auto& [key, value] : items)
+    {
+        PushID(key.data());
+        const bool item_selected = (key == current_item);
+        std::string item_text = value;
+        if (!item_text.empty())
+        {
+            if (Selectable(item_text.c_str(), item_selected))
+            {
+                value_changed = true;
+                current_item = key;
+            }
+            if (item_selected)
+                SetItemDefaultFocus();
+        }
         PopID();
     }
 
@@ -200,7 +321,7 @@ bool ImGui::Combo(const char* label, size_t* current_item, std::vector<std::stri
 bool ImGui::SliderArray(const char* label, size_t* current_item, std::vector<std::string> array, const char* format)
 {
     size_t a_min = 0;
-    size_t a_max = array.size() - 1;
+    size_t a_max = array.empty() ? 0 : array.size() - 1;
 
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -240,7 +361,7 @@ bool ImGui::SliderArray(const char* label, size_t* current_item, std::vector<std
 
     // Slider behavior
     ImRect grab_bb;
-    const bool value_changed = SliderBehavior(frame_bb, id, ImGuiDataType_U32, current_item, &a_min, &a_max, "%I64u", 1, ImGuiSliderFlags_None, &grab_bb);
+    const bool value_changed = SliderBehavior(frame_bb, id, ImGuiDataType_U64, current_item, &a_min, &a_max, "%I64u", 1, ImGuiSliderFlags_None, &grab_bb);
     if (value_changed)
         MarkItemEdited(id);
 
@@ -250,7 +371,11 @@ bool ImGui::SliderArray(const char* label, size_t* current_item, std::vector<std
 
     // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
     char value_buf[64];
-    const char* value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), format, array[*current_item].c_str());
+    const char* preview_value = "";
+    if (*current_item < array.size()) {
+        preview_value = array[*current_item].c_str();
+    }
+    const char* value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), format, preview_value);
     RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
 
     if (label_size.x > 0.0f)
@@ -345,7 +470,7 @@ bool ImGui::DragTime(const char* label, int* v, float v_speed, int v_min, int v_
 /// <param name="label">Widget label</param>
 /// <param name="v">Bool if the checkbox is checked</param>
 /// <returns>Bool with if the value changed</returns>
-bool ImGui::SwitchCheckbox(const char* label, bool v)
+bool ImGui::SwitchCheckbox(const char* label, bool* v)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -367,14 +492,14 @@ bool ImGui::SwitchCheckbox(const char* label, bool v)
     bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
     if (pressed)
     {
-        v = !v;
+        *v = !*v;
         MarkItemEdited(id);
     }
 
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
     ImU32 check_bg;
     ImVec2 check_pos;
-    if (v)
+    if (*v)
     {
         check_bg = GetColorU32(ImVec4(0.13f, 0.59f, 0.95f, 1.0f));
         check_pos = ImVec2(check_bb.Min.x + 2 + 14, check_bb.Min.y + 9);
@@ -483,32 +608,63 @@ void ImGui::FramedText(const char* label, ImVec2 size_arg)
 }
 
 
-/// <summary>Wraps colored text.</summary>
-/// <remarks>Combination of <see cref="ImGui::TextColored"/> and <see cref="ImGui::TextWrapped"/>.</remarks>
-/// <param name="col">Color of the text</param>
-/// <param name="text">String to be displayed</param>
-void ImGui::TextColoredWrapped(const ImVec4& col, const char* text)
+void ImGui::SetTooltip(std::string text)
+{
+    SetTooltip("%s", text.c_str());
+}
+
+
+void ImGui::TextWrapped(std::string text)
 {
     bool need_wrap = (GImGui->CurrentWindow->DC.TextWrapPos < 0.0f);    // Keep existing wrap position is one ia already set
     if (need_wrap) PushTextWrapPos(0.0f);
-    TextColored(col, "%s", text);
+    Text("%s", text.c_str());
     if (need_wrap) PopTextWrapPos();
 }
 
 
-/// <summary>desc.</summary>
+/// <summary>Wraps colored text.</summary>
+/// <remarks>Combination of <see cref="ImGui::TextColored"/> and <see cref="ImGui::TextWrapped"/>.</remarks>
+/// <param name="col">Color of the text</param>
+/// <param name="fmt">String to be formatted</param>
+void ImGui::TextColoredWrapped(const ImVec4& col, const char* fmt, ...)
+{
+    bool need_wrap = (GImGui->CurrentWindow->DC.TextWrapPos < 0.0f);    // Keep existing wrap position is one ia already set
+    if (need_wrap) PushTextWrapPos(0.0f);
+    va_list args;
+    va_start(args, fmt);
+    TextColoredV(col, fmt, args);
+    va_end(args);
+    if (need_wrap) PopTextWrapPos();
+}
+
+
+/// <summary>Wraps colored text.</summary>
+/// <remarks>Combination of <see cref="ImGui::TextColored"/> and <see cref="ImGui::TextWrapped"/>.</remarks>
+/// <param name="col">Color of the text</param>
+/// <param name="text">String to be displayed</param>
+void ImGui::TextColoredWrapped(const ImVec4& col, std::string text)
+{
+    bool need_wrap = (GImGui->CurrentWindow->DC.TextWrapPos < 0.0f);    // Keep existing wrap position is one ia already set
+    if (need_wrap) PushTextWrapPos(0.0f);
+    TextColored(col, "%s", text.c_str());
+    if (need_wrap) PopTextWrapPos();
+}
+
+
+/// <summary>Color picker.</summary>
 /// <param name="label">Widget label</param>
 /// <param name="current_item">Index of selected item</param>
 /// <param name="custom_colors"><c>std::vector</c> of <c>ImVec4</c> colors</param>
-/// <param name="num_colums">Number of coloms to split the custom_colors in</param>
+/// <param name="hue_count">Number of hue columns to split the custom_colors in</param>
 /// <param name="default_color">Default color for the ColorButton</param>
 /// <param name="size">Size if the ColorButton</param>
-void ImGui::RLColorPicker(const char* label, char* current_item, std::vector<ImVec4> custom_colors, unsigned char num_colums, ImVec4 default_color, ImVec2 size)
+void ImGui::RLColorPicker(const char* label, char* current_item, std::vector<ImVec4> custom_colors, int hue_count, ImVec4 default_color, ImVec2 size)
 {
-    ImVec4 currentColor = current_item < 0 || *current_item >= custom_colors.size() ? default_color : custom_colors[*current_item];
+    const ImVec4 current_color = current_item < 0 || *current_item >= custom_colors.size() ? default_color : custom_colors[*current_item];
 
     PushID(label);
-    if (ColorButton("##CurrentRLColor", currentColor, ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_NoDragDrop, size))
+    if (ColorButton("##CurrentRLColor", current_color, ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_NoDragDrop, size))
         OpenPopup("RLColorPicker");
     if (BeginPopup("RLColorPicker")) {
         if (ColorButton("##DefaultRLColor", default_color)) {
@@ -518,14 +674,14 @@ void ImGui::RLColorPicker(const char* label, char* current_item, std::vector<ImV
         SameLine();
         Text("Default");
 
-        for (char i = 0; i < custom_colors.size(); i++) {
+        for (char i = 0; i < static_cast<char>(custom_colors.size()); i++) {
             PushID(i);
             if (ColorButton("##CustomRLColor", custom_colors[i])) {
                 *current_item = i;
                 CloseCurrentPopup();
             }
             PopID();
-            if (i % num_colums != num_colums - 1)
+            if (i % hue_count != hue_count - 1)
                 SameLine(0, 4);
         }
         EndPopup();
