@@ -15,6 +15,7 @@ namespace ImGui
     float GetFrameWidth();
     float GetFrameWidthWithSpacing();
     bool IsItemActiveLastFrame();
+    bool IsItemJustReleased();
     void BeginDisabled();
     void EndDisabled();
     void BeginSuccessBorder();
@@ -36,5 +37,9 @@ namespace ImGui
     void TextWrapped(std::string text);
     void TextColoredWrapped(const ImVec4& col, const char* fmt, ...);
     void TextColoredWrapped(const ImVec4& col, std::string text);
-    void RLColorPicker(const char* label, char* current_item, std::vector<ImVec4> custom_colors, int hue_count, ImVec4 default_color = ImVec4(), ImVec2 size = ImVec2());
+    void RLColorPicker(const char* label, int8_t* current_item, std::vector<ImVec4> custom_colors, int hue_count, ImVec4 default_color = ImVec4(), ImVec2 size = ImVec2());
+    // From https://github.com/ocornut/imgui/tree/master/misc/cpp
+    bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    bool InputTextMultiline(const char* label, std::string* str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    bool InputTextWithHint(const char* label, const char* hint, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
 }

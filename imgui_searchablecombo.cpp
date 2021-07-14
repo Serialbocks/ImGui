@@ -228,13 +228,6 @@ bool ImGui::SearchableCombo(const char* label, size_t* current_item, std::vector
 }
 
 
-/* Special string conversion for strings. */
-std::string to_string(const std::string& str)
-{
-    return str;
-}
-
-
 /* Special string conversion for paths. */
 std::string to_string(const std::filesystem::path& path)
 {
