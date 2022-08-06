@@ -601,7 +601,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
             {
                 held = true;
             }
-            else
+            //else
             {
                 bool release_in = hovered && (flags & ImGuiButtonFlags_PressedOnClickRelease) != 0;
                 bool release_anywhere = (flags & ImGuiButtonFlags_PressedOnClickReleaseAnywhere) != 0;
